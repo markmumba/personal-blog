@@ -71,6 +71,8 @@ class User(UserMixin,db.Model):
     def verify_password(self,password):
         return check_password_hash(self.pass_secure,password)
 
+        # this is to save the user to our dabase
+
     def save_user(self):
         db.session.add(self)
         db.session.commit()
@@ -79,5 +81,38 @@ class User(UserMixin,db.Model):
 
     def __repr__(self):
         return f'User {self.username}'
+
+# commentsclass 
+class Comments(db.Model):
+
+	__tablename__ = 'comment'
+
+    # add columns
+    id = db.Column(db. Integer,primary_key = True)
+    comment_section = db.Column(db.String(500))
+    author = db.Column(db.String(255))
+    date_posted = db.Column(db.DateTime,default=datetime.utcnow)
+    user_id = db.Column(db.Integer,db.ForeignKey("users.id"))
+    blog_id = db.Column(db.Integer,db.ForeignKey("blog.id"))
+
+    def save_comment(self):
+
+    	db.session.add(self)
+    	db.session.commit()
+
+     @classmethod
+    def get_comments(self,id):
+        comment = Comments.query.filter_by(blog_id=id).all()
+        return comment
+
+    @classmethod
+    def delete_comment(cls,comment_id):
+        '''
+        Function that delete a simgle comment in a blog post
+        '''
+        comment = Comments.query.filter_by(id=comment_id).delete()
+        db.session.commit()
+
+
 
 
