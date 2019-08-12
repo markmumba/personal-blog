@@ -1,0 +1,36 @@
+{% extends 'bootstrap/base.html' %}
+
+<!-- This will be responsible for displaying all the blogs -->
+{% macro displayBlogs(blog_list)%}
+ {% for blog in blog_list%}
+    <div class="container">
+       <h2><a href="/blogs/{{blog.id}}">{{blog.title }}</a></h2>
+        <h4>{{blog.content}}</h4>
+         <p class="text-right"><small><i>{{ blog.user.username }}</i></small></p>
+
+    </div>
+{% endfor %}
+{% endmacro %}
+
+<!-- it will display all the comments -->
+{% macro displayComments(comment_list)%} {% for comments in comment_list%}
+<div class="container">{{ comments.comment_section }}
+  <small>By: <i>{{ comments.user.username }}</i></small>
+
+</div>
+{% endfor %}
+{% endmacro %}
+<!-- This for displaying a specific blog  -->
+{% macro displaySpecificBlog(specific_blog_list) %} {% for comment in specific_blog_list %}
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left">
+  <hr> {{comment.comment_section}}
+</div>
+{% endfor %}{% endmacro %} {% macro displayAdminBlogs(blog_list)%} {% for blog in blog_list%}
+<div class="container">
+  <h2><a href="/blogs/{{blog.id}}">{{blog.title }}</a></h2>
+  <h4>{{blog.content}}</h4>
+  <small>By: <i>{{ blog.user.username }}</i></small>
+
+</div>
+{% endfor %}
+{% endmacro %}
