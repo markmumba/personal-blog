@@ -1,0 +1,22 @@
+body{
+	background-color:#374643;
+	color: white;
+	font-family: 'Beth Ellen', cursive;
+	font-size: 40px;
+}
+.navbar{
+	background-color: #0C0C0C;
+	color: #BA5A31;
+	font-size: 20px;
+	font-family: 'Quicksand', sans-serif;
+
+}
+.quote{
+	color:#BA5A31;
+	font-family: 'Aladin', cursive;
+	font-size: 40px;
+	
+}
+#subcriber{
+	padding-left: 100px;
+}

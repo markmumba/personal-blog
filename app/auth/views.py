@@ -18,7 +18,7 @@ def login():
 
         flash('Invalid username or Password')
 
-    title = "watchlist login"
+    title = "Blog Log in"
     return render_template('auth/login.html',login_form = login_form,title=title)
 
 @auth.route('/register',methods = ["GET","POST"])
@@ -41,3 +41,24 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for("main.index"))
+
+
+
+
+
+
+
+@auth.route('/register_admin',methods = ["GET","POST"])
+@login_required
+def register_admin():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(email = form.email.data, username = form.username.data,password = form.password.data,role_id=1)
+        db.session.add(user)
+        db.session.commit()
+
+        mail_message("My Blog Admin","email/welcome_admin",user.email,user=user)
+
+        return redirect(url_for('auth.login'))
+        title = "New Account"
+    return render_template('auth/admin.html',registration_form = form)

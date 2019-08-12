@@ -1,39 +1,31 @@
 # this the form that will allow a person to register into my blog app
 # contains registration form and  also the login form
 from flask_wtf import FlaskForm
-from wtforms import StringField,PasswordField,ValidationError,BooleanField,SubmitField,validators
-from wtforms.validators import Required,Email,EqualTo
+from wtforms import StringField,PasswordField,BooleanField,SubmitField
+from wtforms.validators import Required,Email,Length,EqualTo
 from ..models import User
 from wtforms import ValidationError
 
+class LoginForm(FlaskForm):
+    email = StringField('Your Email Address',validators=[Required(),Email()])
+    password = PasswordField('Password',validators =[Required()])
+    remember = BooleanField('Remember me')
+    submit = SubmitField('Sign In')
 
 
-class LoginForm():
-    email=StringField(' email ',validators=[Required(),Email()])
-    password=PasswordField('password',validators=[Required()])
-    remember = BooleanField('remember me')
-    submit= SubmitField('Sign in')
-   
-
-
-class RegistrationForm():
-    username =StringField('username', validators=[Required()])
-    email = StringField('email', validators=[Required(),Email()])
-    password =PasswordField('password', validators=[Required(),EqualTo('password',message = 'password must match')])
-    confirm_password=PasswordField('confirm password',validators=[Required()])
+class RegistrationForm(FlaskForm):
+    email = StringField('Your Email Address',validators=[Required(),Email()])
+    username = StringField('Enter your username',validators = [Required()])
+    password = PasswordField('Password',validators = [Required(),
+    EqualTo('password2',message = 'Passwords must match')])
+    password2 = PasswordField('Confirm Passwords',validators = [Required()])
     submit = SubmitField('Sign Up')
 
-    # custom validators
 
     def validate_email(self,data_field):
-        # check if email passed in are in our database 
         if User.query.filter_by(email =data_field.data).first():
-            raise ValidationError( 'KUNA ACCOUNT IKO NA EMAIL KAMA HIO')
+            raise ValidationError('OII BOYZ KUNA ACCOUNT KAMA HIO BANA')
 
     def validate_username(self,data_field):
-        # checks if username passed in exists
         if User.query.filter_by(username = data_field.data).first():
-            raise ValidationError( 'IYO JINA ISHA CHUKULIWA BANA')
-
-
-
+            raise ValidationError('HIO JINA ISHA ENDA')
