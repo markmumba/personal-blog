@@ -1,65 +1,77 @@
-# this is the models.py where we are able to create columns for our database 
 from . import db
 from werkzeug.security import generate_password_hash,check_password_hash
 from flask_login import UserMixin
-from . import login_manger
+from . import login_manager
 from datetime import datetime
 
-
-
-
-@login_manger.user_loader
+@login_manager.user_loader
 def load_user(user_id):
+    '''
+    Given *user_id*, return the associated User object.
+    :param unicode user_id: user_id (email) user to retrieve
+    '''
+    return User.query.get(int(user_id))
 
-
-	return User.query.get(init(user_id))
-
-
-# this will contain all the blogs
+# collection of all blogs
 class Blog(db.Model):
+    '''
+    Blog class define Blog
+    '''
+    __tablename__ = 'blog'
 
-	__tablename__ ='blog'
+    # add columns
+    id = db.Column(db.Integer, primary_key = True)
+    title = db.Column(db.String(255))
+    content = db.Column(db.String(1000))
+    date_posted = db.Column(db.DateTime,default=datetime.utcnow)
+    user_id = db.Column(db.Integer,db.ForeignKey("users.id"))
+    comment_id = db.relationship("Comments", backref = "blog", lazy = "dynamic")
 
-	id  =db.Column(db.Intger,primary_Key=True)
-	title =db.Column(db.String(300))
-	content = db.Column(db.String(1000))
-	date_posted  =db.Column(db.DateTime,default=datetime.utcnow)
-	user_id =db.Column(db.Intger,db.ForeignKey("users.id"))
-	comment_id =db.relationship("Comments",backref='blog', lazy= 'dynamic')
+    # save
+    def save_blog(self):
+        '''
+        Function that saves Blog
+        '''
 
-
-	def save_blog(self):
-		# this to save the blogs when written
-		db.session.add(self)
+        db.session.add(self)
         db.session.commit()
 
     @classmethod
+    def get_blog(cls):
+        '''
+        Function that returns all the data from blog after being queried
+        '''
+        blog = Blog.query.order_by(Blog.id.desc()).all()
+        return blog
+
+    @classmethod
     def delete_blog(cls):
-    	# this function will help in deleting the blogs.it will apply to all due to the @class method
+        '''
+        Functions the deletes a blog post
+        '''
+        blog = Blog.query.filter_by(id=blog_id).delete()
+        comment = Comments.query.filter_by(blog_id=blog_id).delete()
 
-    	blog = Blog.query.filter_by(id=blog_id).delete()
-    	comment = Comments.query.filter_by(blog_id =blog_id).delete()
-
-
-# The users class
+# users
 class User(UserMixin,db.Model):
-	# this helps us to create new users into our database and save them
+    '''
+    User class that will help to create new users
+    '''
+    __tablename__ = 'users'
 
-	__tablename__='users'
-
-	id = db.Column(db.Integer,primary_key = True)
+    # add columns
+    id = db.Column(db.Integer,primary_key = True)
     username = db.Column(db.String(255))
     email = db.Column(db.String(255),unique=True,index=True)
     pass_secure = db.Column(db.String(255))
+    # role_id = db.Column(db.Integer,db.ForeignKey("roles.id"))
     blog = db.relationship("Blog", backref = "user", lazy = "dynamic")
     comment = db.relationship("Comments", backref = "user", lazy = "dynamic")
     is_admin = db.Column(db.Boolean,default=False)
 
-    # makingour password secure 
-    # We use the werkzeug.security to generate hash pass
-    # and also to check the hashed password
+
+    # securing our passwords
     @property
-    # We use the @property decorator to create a write only class property password. 
     def password(self):
         raise AttributeError('You can not read the password Attribute')
 
@@ -70,8 +82,6 @@ class User(UserMixin,db.Model):
     def verify_password(self,password):
         return check_password_hash(self.pass_secure,password)
 
-        # this is to save the user to our dabase
-
     def save_user(self):
         db.session.add(self)
         db.session.commit()
@@ -81,10 +91,12 @@ class User(UserMixin,db.Model):
     def __repr__(self):
         return f'User {self.username}'
 
-# commentsclass 
+# comments
 class Comments(db.Model):
-
-	__tablename__ = 'comment'
+    '''
+    comment class that creates new comments from users
+    '''
+    __tablename__ = 'comment'
 
     # add columns
     id = db.Column(db. Integer,primary_key = True)
@@ -95,11 +107,13 @@ class Comments(db.Model):
     blog_id = db.Column(db.Integer,db.ForeignKey("blog.id"))
 
     def save_comment(self):
+        '''
+        save the comments per blog
+        '''
+        db.session.add(self)
+        db.session.commit()
 
-    	db.session.add(self)
-    	db.session.commit()
-
-     @classmethod
+    @classmethod
     def get_comments(self,id):
         comment = Comments.query.filter_by(blog_id=id).all()
         return comment
@@ -113,5 +127,16 @@ class Comments(db.Model):
         db.session.commit()
 
 
-
-
+#levels of access
+# class Role(db.Model):
+#     '''
+#     ROle class defines a user's roles
+#     '''
+#     __tablename__ = 'roles'
+#
+#     id = db.Column(db.Integer,primary_key = True)
+#     name = db.Column(db.String(255))
+#     users = db.relationship('User',backref = 'role', lazy ='dynamic')
+#
+#     def __repr__(self):
+#         return f'User {self.name}'
