@@ -36,3 +36,31 @@ def list_blogs():
 
 	return render_template('admin/post.html',blogs=blogs, title='Blogs')
 
+
+@admin.route('/blogs/add', methods=['GET', 'POST'])
+@login_required
+def add_blog():
+	# Returns a list of all
+	check_admin()
+
+    add_blog = True
+
+    form = BlogForm()
+    if form.validate_on_submit():
+    	blogs = Blog(title = form.title.data,content=form.content.data)
+
+    	try:
+            db.session.add(blogs)
+            db.session.commit()
+            flash('Successfully added a new Blog Post.')
+        except:
+
+            flash('Error: Blog already exists.')
+        return redirect(url_for('admin.list_blogs'))
+
+    return render_template('admin/posts.html', action = "Add", add_blog=add_blog,form=form,title="Add Blog")
+
+
+
+
+
