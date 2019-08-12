@@ -11,7 +11,8 @@
     </div>
     <div class="navbar-collapse collapse">
       <ul class="nav navbar-nav navbar-right">
-        {% if current_user.is_authenticated %} {% if current_user.is_admin %}
+        {% if current_user.is_authenticated %} 
+        {% if current_user.is_admin %}
         <li><a href="{{ url_for('.admin_dashboard') }}">Dashboard</a></li>
         <li><a href="{{ url_for('admin.list_blogs') }}">Blogs</a></li>
         {% else %}
