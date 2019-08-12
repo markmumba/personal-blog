@@ -9,47 +9,56 @@ from .forms import BlogForm
 # Admin dashboard
 
 def check_admin():
-
-
-	if not current_user.is_admin:
+    '''
+    Prevent non-admins from accessing the page
+    '''
+    if not current_user.is_admin:
         abort(403)
 
 
 @admin.route('/admin/dashboard')
 @login_required
 def admin_dashboard():
-
-	if not current_user.is_admin:
+    '''
+    Prevent users from accessing the admin page
+    '''
+    if not current_user.is_admin:
         abort(403)
 
     blogs = Blog.get_blog()
     return render_template('admin/admin_dashboard.html', title="AdminDashboard",blogs=blogs)
 
-
 # blog views
-@admin.route('/blogs',methods=['GET','POST'])
+@admin.route('/blogs', methods=['GET','POST'])
 @login_required
 def list_blogs():
-	check_admin()
+    '''
+    List all blogs
+    '''
+    check_admin()
 
-	blogs =Blog.query.all()
+    blogs = Blog.query.all()
 
-	return render_template('admin/post.html',blogs=blogs, title='Blogs')
-
+    return render_template('admin/post.html',blogs=blogs, title="Blogs")
 
 @admin.route('/blogs/add', methods=['GET', 'POST'])
 @login_required
 def add_blog():
-	# Returns a list of all
-	check_admin()
+    '''
+    Blog route function that returns a list of blogs
+    '''
+    check_admin()
+
+    # if blogs is None:
+    #     abort(404)
 
     add_blog = True
 
     form = BlogForm()
     if form.validate_on_submit():
-    	blogs = Blog(title = form.title.data,content=form.content.data)
+        blogs = Blog(title=form.title.data,content=form.content.data)
 
-    	try:
+        try:
             db.session.add(blogs)
             db.session.commit()
             flash('Successfully added a new Blog Post.')
@@ -59,7 +68,6 @@ def add_blog():
         return redirect(url_for('admin.list_blogs'))
 
     return render_template('admin/posts.html', action = "Add", add_blog=add_blog,form=form,title="Add Blog")
-
 
 # Edit blog
 @admin.route('/blogs/edit/<int:id>', methods=['GET', 'POST'])
@@ -84,9 +92,6 @@ def edit_blog(id):
     form.content.data = blogs.content
     return render_template('admin/posts.html', action = 'Edit', add_blog=add_blog,form=form,blogs=blogs, title="Edit Blog")
 
-
-
-
 # Delete blog
 @admin.route('/blogs/delete/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -105,4 +110,15 @@ def delete_blog(id):
 
     return render_template(title="Delete Blog")
 
-
+# blog views
+# @admin.route('/blogs', methods=['GET','POST'])
+# @login_required
+# def list_blogs():
+#     '''
+#     List all blogs
+#     '''
+#     check_admin()
+#
+#     blog = Blog.query.all()
+#
+#     return render_template('admin/post.html',blog=blog, title="Blogs")

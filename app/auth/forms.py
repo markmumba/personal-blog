@@ -1,7 +1,7 @@
 # this the form that will allow a person to register into my blog app
 # contains registration form and  also the login form
 from flask_wtf import FlaskForm
-from wtforms import StringField,PasswordField,ValidationError,BooleanField
+from wtforms import StringField,PasswordField,ValidationError,BooleanField,SubmitField
 from wtforms.validators import Required,Email,EqualTo
 from ..models import User
 
