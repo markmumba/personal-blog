@@ -30,7 +30,6 @@ class Blog(db.Model):
 
 	def save_blog(self):
 		# this to save the blogs when written
-
 		db.session.add(self)
         db.session.commit()
 
