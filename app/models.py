@@ -6,137 +6,91 @@ from datetime import datetime
 
 @login_manager.user_loader
 def load_user(user_id):
-    '''
-    Given *user_id*, return the associated User object.
-    :param unicode user_id: user_id (email) user to retrieve
-    '''
     return User.query.get(int(user_id))
 
-# collection of all blogs
-class Blog(db.Model):
-    '''
-    Blog class define Blog
-    '''
-    __tablename__ = 'blog'
-
-    # add columns
-    id = db.Column(db.Integer, primary_key = True)
-    title = db.Column(db.String(255))
-    content = db.Column(db.String(1000))
-    date_posted = db.Column(db.DateTime,default=datetime.utcnow)
-    user_id = db.Column(db.Integer,db.ForeignKey("users.id"))
-    comment_id = db.relationship("Comments", backref = "blog", lazy = "dynamic")
-
-    # save
-    def save_blog(self):
-        '''
-        Function that saves Blog
-        '''
-
-        db.session.add(self)
-        db.session.commit()
-
-    @classmethod
-    def get_blog(cls):
-        '''
-        Function that returns all the data from blog after being queried
-        '''
-        blog = Blog.query.order_by(Blog.id.desc()).all()
-        return blog
-
-    @classmethod
-    def delete_blog(cls):
-        '''
-        Functions the deletes a blog post
-        '''
-        blog = Blog.query.filter_by(id=blog_id).delete()
-        comment = Comments.query.filter_by(blog_id=blog_id).delete()
-
-# users
 class User(UserMixin,db.Model):
-    '''
-    User class that will help to create new users
-    '''
-    __tablename__ = 'users'
+    __tablename__='users'
 
-    # add columns
-    id = db.Column(db.Integer,primary_key = True)
-    username = db.Column(db.String(255))
+    id=db.Column(db.Integer,primary_key = True)
+    username = db.Column(db.String(255),index = True)
     email = db.Column(db.String(255),unique=True,index=True)
-    pass_secure = db.Column(db.String(255))
-    # role_id = db.Column(db.Integer,db.ForeignKey("roles.id"))
-    blog = db.relationship("Blog", backref = "user", lazy = "dynamic")
-    comment = db.relationship("Comments", backref = "user", lazy = "dynamic")
-    is_admin = db.Column(db.Boolean,default=False)
+    password_hash = db.Column(db.String())
+    role_id = db.Column(db.Integer,db.ForeignKey('roles.id'))
 
-
-    # securing our passwords
     @property
     def password(self):
-        raise AttributeError('You can not read the password Attribute')
+        raise AttributeError("You cannot read the password attribute")
 
     @password.setter
-    def password(self, password):
-        self.pass_secure = generate_password_hash(password)
+    def password(self,password):
+        self.password_hash = generate_password_hash(password)
 
     def verify_password(self,password):
-        return check_password_hash(self.pass_secure,password)
+        return check_password_hash(self.password_hash,password)
 
     def save_user(self):
         db.session.add(self)
         db.session.commit()
 
-
-
     def __repr__(self):
-        return f'User {self.username}'
+        return f'User{self.username}'
 
-# comments
-class Comments(db.Model):
-    '''
-    comment class that creates new comments from users
-    '''
-    __tablename__ = 'comment'
+class Subscriber(db.Model):
+    __tablename__='subscribers'
 
-    # add columns
-    id = db.Column(db. Integer,primary_key = True)
-    comment_section = db.Column(db.String(500))
-    author = db.Column(db.String(255))
-    date_posted = db.Column(db.DateTime,default=datetime.utcnow)
-    user_id = db.Column(db.Integer,db.ForeignKey("users.id"))
-    blog_id = db.Column(db.Integer,db.ForeignKey("blog.id"))
+    id=db.Column(db.Integer,primary_key=True)
+    email = db.Column(db.String(255),unique=True,index=True)
 
-    def save_comment(self):
-        '''
-        save the comments per blog
-        '''
+    def save_subscriber(self):
+        db.session.add(self)
+        db.session.commit()
+
+
+class Post(db.Model):
+    __tablename__ = 'posts'
+
+    id = db.Column(db.Integer,primary_key=True)
+    post_id=db.Column(db.Integer)
+    title = db.Column(db.String)
+    post = db.Column(db.String)
+    category = db.Column(db.String)
+    like=db.Column(db.Integer)
+    posted = db.Column(db.DateTime,default=datetime.utcnow)
+
+
+    def save_post(self):
         db.session.add(self)
         db.session.commit()
 
     @classmethod
-    def get_comments(self,id):
-        comment = Comments.query.filter_by(blog_id=id).all()
-        return comment
+    def get_posts(cls,id):
+        posts=Post.query.filter_by(post_id=id).all()
+        return posts
 
-    @classmethod
-    def delete_comment(cls,comment_id):
-        '''
-        Function that delete a simgle comment in a blog post
-        '''
-        comment = Comments.query.filter_by(id=comment_id).delete()
+class Comment(db.Model):
+    __tablename__='comments'
+
+    id = db.Column(db.Integer,primary_key = True)
+    comment = db.Column(db.String)
+    posted = db.Column(db.DateTime,default=datetime.utcnow)
+    post_id = db.Column(db.Integer,db.ForeignKey("posts.id"))
+    user_id = db.Column(db.Integer,db.ForeignKey("users.id"))
+
+    def save_comment(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete_comment(self):
+        db.session.delete(self)
         db.session.commit()
 
 
-#levels of access
-# class Role(db.Model):
-#     '''
-#     ROle class defines a user's roles
-#     '''
-#     __tablename__ = 'roles'
-#
-#     id = db.Column(db.Integer,primary_key = True)
-#     name = db.Column(db.String(255))
-#     users = db.relationship('User',backref = 'role', lazy ='dynamic')
-#
-#     def __repr__(self):
-#         return f'User {self.name}'
+class Role(db.Model):
+    __tablename__ = 'roles'
+
+    id = db.Column(db.Integer,primary_key=True)
+    name = db.Column(db.String(255))
+    users= db.relationship('User',backref='role',lazy="dynamic")
+
+    def __repr__(self):
+        return f'User{self.name}'
