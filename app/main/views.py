@@ -4,7 +4,7 @@ from . import main
 from .forms import UpdateProfile,PostAblog,PostAComment
 from .. import db
 from ..models import User,Blog,Comment
-from ..requests import get_quotes
+from ..request import get_quote
 
 # Views
 @main.route('/')
@@ -15,7 +15,7 @@ def index():
     '''
 
     title = 'Home'
-    quotes = get_quotes()
+    quotes = get_quote()
 
     return render_template('index.html', title = title, quotes=quotes )
 

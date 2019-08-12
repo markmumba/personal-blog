@@ -15,27 +15,18 @@
 
 {% block content %}
 
- <div class="container" style="text-align: center; background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSbJN0n-oUix982IlKS_hitD-JypflRtvz9ftQrUr62vyMxqnk'); background-repeat : no-repeat; background-size: 100vw 100vh ; padding: 100px;">
     <!--Header-->
     <div class="row d-flex justify-content-center" >
         <h1 class="black-text mb-3 pt-3 font-weight-bold">THE BLOG</h1>
     </div>
  <div class=" quote container animated fadeInDownBig delay-3s text-center">
-    <p>{{quote.quote}}</p>
-    <p>{{quote.author}}</p>
+    <p>{{quotes.quote}}</p>
+    <p>{{quotes.author}}</p>
 </div>
 
     </div>
     </div>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
-<div class="col-md-4 ">
-  <div class="panel" id="subcriber">
-    <div class="panel-body text-center">
-      <h4>Subscribe to our Blog</h4>
-      {{wtf.quick_form(subscriber_form)}}
-      {{simplemde.load}}
-    </div>
-  </div>
-</div>
+
 {% endblock %}

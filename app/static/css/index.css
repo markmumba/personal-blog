@@ -1,12 +1,12 @@
 body{
-	background-color:#374643;
-	color: white;
+	background-image: https://images.pexels.com/photos/589840/pexels-photo-589840.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260;
+	color: #FEE59D;
 	font-family: 'Beth Ellen', cursive;
 	font-size: 40px;
 }
 .navbar{
 	background-color: #0C0C0C;
-	color: #BA5A31;
+	font-color: #BA5A31;
 	font-size: 20px;
 	font-family: 'Quicksand', sans-serif;
 
@@ -19,4 +19,9 @@ body{
 }
 #subcriber{
 	padding-left: 100px;
+}
+h1{
+	text-align: center;
+
+
 }
