@@ -1,3 +1,0 @@
-Dear {{user.username}}
-Welcome to the blog
-share views and ideas and you can also rant about anything

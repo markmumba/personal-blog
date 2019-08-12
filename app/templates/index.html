@@ -15,34 +15,21 @@
 
 {% block content %}
 
-  <div class=" quote container animated fadeInDownBig delay-3s text-center">
-    <p>{{quote.quote}}</p>
-    <p>{{quote.author}}</p>
-</div>
-
-
-<div class="col-md-8">
-  {% for post in posts %}
-
-  <div class="panel">
-    <div class="panel-body responsive">
-      <div class="col-md-8">
-        <div class="text-center">
-          <h1>{{post.title}}</h1>
-          <h4>{{post.posted.strftime('%Y-%m-%d')}}/ <a href="#">{{post.category}}</a></h4>
-        </div>
-        <br>
-
-        <p>{{post.post|truncate(350)}}</p>
-        <div class="text-center">
-          <a href="/post/{{post.id}}">Click To Read / Comment...</a>
-        </div>
-      </div>
+ <div class="container" style="text-align: center; background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSbJN0n-oUix982IlKS_hitD-JypflRtvz9ftQrUr62vyMxqnk'); background-repeat : no-repeat; background-size: 100vw 100vh ; padding: 100px;">
+    <!--Header-->
+    <div class="row d-flex justify-content-center" >
+        <h1 class="black-text mb-3 pt-3 font-weight-bold">THE BLOG</h1>
     </div>
-  </div>
-  {% endfor %}
-</div>
 
+    <div class="row mt-2 mb-3 d-flex justify-content-center" style="background-color:rgba(99, 99, 150, 0.603);">
+        <div class="" style="font-size: 20px; margin-top:40px">
+            {{ quotes.quote }}
+            <cite title="Source Title"> {{ quotes.author }} </cite>
+        </div>
+
+
+    </div>
+    </div>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 <div class="col-md-4 ">

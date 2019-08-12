@@ -1,0 +1,91 @@
+
+
+<!-- Content block -->
+{% block content %}
+
+<head>
+    <title> {{ title }} </title>
+</head>
+
+
+    <div class="rare-wind-gradient" style="text-align: center">
+        <div class="container">
+
+            <h1>Profile</h1>
+    
+        </div>
+    
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css">
+    
+        <div class="container-fluid">
+            <div class="row">
+                <div>
+                    {% if user.profile_pic_path %}style="padding: 20px;"alt="" class="img-thumbnail" id="profpic"
+                        <img src="{{url_for('static',filename=user.profile_pic_path)}}" alt="" class="img-thumbnail" id="profpic">
+                    {%else%}
+                    <div class="row">
+                        <div class="col-md-4">
+                            {% if user.profile_pic_path %}
+                                <img src="{{url_for('static',filename=user.profile_pic_path)}}" alt="" class="img-thumbnail" id="profpic" >
+                            {%else%}
+                                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcStV0EwQH4fiBIO_ashlTIwhyGH-6h_YiKqmocPHndfsiPBWcl4" alt="profile pic" class="img-thumbnail" id="profpic">
+                            {% endif %}
+                        </div>
+                    </div>
+                        <!-- <i class="fa fa-camera" id="profpic"></i> -->
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+                <div class="col-md-1">
+                    <a class="btn btn-lg" href="/user/{{user.username}}/update.html" role="button" >Edit Profile</a>
+                </div>
+        </div>
+        <div class="row" id="mainprofile">
+                <div class="col-md-2" id="bio">
+                    {% if user %}
+                        <p>@{{user.username}}</p>
+                        {% if user.bio %}
+                            <h5 >Bio</h6>
+                            <p> {{user.bio}}</p>
+                        {%else%}
+                            <p> <strong>{{user.username}} has no bio</strong> </p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="col-md-6" id="myposts">
+                    {% for blog in blogs %}
+                        {% if blog.user_id == current_user.id %}
+            <div class="row">
+            <div class="col-md-2" >
+                        {% if user.profile_pic_path %}
+                            <img src="{{url_for('static',filename=user.profile_pic_path)}}" alt="" class="img-thumbnail";>
+                        {% endif %}
+                </div>
+                <div class="col-md-8">
+                    <div class="row">
+                        {% for user in users %}
+                            {% if user.id == blog.user_id %}
+                                <p>{{user.username}}</p>
+                            {% endif %}
+                        {% endfor %}
+                        <p>{{blog.title}}</p>
+                        <p>{{blog.content}}</p>
+                    </div>
+                    </div>
+                </div>            
+            </div>
+            {% endif %}
+            <br>
+            {% endfor %}
+                    <div class="row" style="padding: 10px;" >
+                                
+                                <a class="btn btn-primary btn-sm" href="/blogs" role="button" >Add a blog</a>
+                    </div>
+                </div>
+            </div>
+    </div>
+   
+
+{% endblock %}
