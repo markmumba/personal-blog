@@ -1,98 +1,87 @@
-from flask import render_template,redirect,url_for,abort
+from flask import render_template,request,redirect,url_for,abort
 from . import main
-from .. import db
-from ..models import Blog,User,Comments
-from flask_login import login_required, current_user
-from .forms import BlogForm, CommentForm
+from .forms import PostForm,SubscriberForm,CommentForm
+from ..import db,photos
+from ..models import User,Post,Role,Subscriber,Comment
+from flask_login import login_required,current_user
 import markdown2
+from ..email import mail_message
+from ..request import get_quote
 
-
-# index page
-@main.route('/')
+@main.route("/",methods=['GET','POST'])
 def index():
-    '''
+    """
     View root page function that returns the index page and its data
-    '''
+    """
+    posts = Post.query.all()
+    form = SubscriberForm()
+    if form.validate_on_submit():
+        email = form.email.data
 
-    blogs = Blog.get_blog()
-    title = 'Home - Welcome to The Blog'
-    return render_template('index.html', title = title, blogs = blogs)
+        new_subscriber=Subscriber(email=email)
+        new_subscriber.save_subscriber()
 
+        mail_message("Subscription Received","email/welcome_subscriber",new_subscriber.email,subscriber=new_subscriber)
 
-# Admin dashboard
-@main.route('/admin_dashboard')
+    title = "Welcome to My Blog"
+    
+    name  = "Quote"
+    quote = get_quote()
+    
+    return render_template('index.html',title=title,posts=posts,subscriber_form=form,name=name,quote=quote)
+
+@main.route('/user/<uname>')
 @login_required
-def admin_dashboard():
-    '''
-    Prevent users from accessing the admin page
-    '''
-    if not current_user.is_admin:
-        abort(403)
-    else:
-        blogs = Blog.get_blog()
+def profile(uname):
+    user = User.query.filter_by(username = uname).first()
 
-    return render_template('admin/admin_dashboard.html', title="AdminDashboard", blogs=blogs)
+    if user is None:
+        abort(404)
 
-# single blog
-@main.route('/blogs/<int:id>')
-def single_blog(id):
-    '''
-    Function that handles viewing a single review
-    '''
-    blogs=Blog.query.get(id)
+    return render_template("profile/profile.html", user = user)
 
+@main.route("/new_post",methods=['GET','POST'])
+@login_required
+def new_post():
+    form = PostForm()
+    if form.validate_on_submit():
+        title = form.title.data
+        post = form.post.data
+        category = form.category.data
+        new_post=Post(title=title,post=post,category=category)
 
-    format_blog = markdown2.markdown(blogs.content,extras=["code-friendly", "fenced-code-blocks"])
+        new_post.save_post()
 
-    return render_template('blog.html',blogs=blogs)
-@main.route('/blog/new/<int:id>', methods = ['GET','POST'])
-def new_comment(id):
-    '''
-    New comment function that returns a form to create a comment on a new page
-    '''
-    blogs = Blog.query.filter_by(id=id).first()
+        subscribers=Subscriber.query.all()
 
+        for subscriber in subscribers:
+            mail_message("New Blog Post","email/new_post",subscriber.email,post=new_post)
 
-    form = CommentForm()
+        return redirect(url_for('main.index'))
+
+    title="Make a post"
+    return render_template('new_post.html',title=title,post_form=form)
+
+@main.route("/post/<int:id>",methods=['GET','POST'])
+def post(id):
+    post=Post.query.get_or_404(id)
+    comment = Comment.query.all()
+    form=CommentForm()
+
+    if request.args.get("like"):
+        post.like = post.like+1
+
+        db.session.add(post)
+        db.session.commit()
+
+        return redirect("/post/{post_id}".format(post_id=post.id))
 
     if form.validate_on_submit():
-        comment_section = form.comment_section.data
-        new_comment = Comments(comment_section=comment_section, blog_id=blogs.id)
+        comment=form.comment.data
+        new_comment = Comment(id=id,comment=comment,user_id=current_user.id,post_id=post.id)
+
         new_comment.save_comment()
 
-        return redirect(url_for('.single_blog', id = blogs.id))
+        return redirect("/post/{post_id}".format(post_id=post.id))
 
-    title = 'New Comment'
-    return render_template('new_comment.html', title=title, comment_form=form)
-
-# switch to blogger page
-@main.route('/blog')
-@login_required
-def blogger():
-    '''
-    Blogger function that returns the  blogger's page and all its data
-    '''
-    title = 'Blogger'
-    blogs = Blog.get_blog()
-
-    return render_template('blogger_post.html', title=title, blogs=blogs)
-#
-#
-# @main.route('/blog/new/', methods = ['GET','POST'])
-# @login_required
-# def new_blog():
-#     '''
-#     New Blog function that returns new blog post
-#     '''
-#     form = BlogForm()
-#
-#
-#     if form.validate_on_submit():
-#         title = form.title.data
-#         content = form.content.data
-#         new_blog = Blog(content=content,user_id=current_user.id, title=title)
-#         new_blog.save_blog()
-#         return redirect(url_for('.index'))
-#
-#     title = 'Create New Blog'
-#     return render_template('new_blog.html', title = title, blog_form = form)
+    return render_template('post.html',post=post,comments=comment,comment_form=form)
