@@ -1,31 +1,56 @@
 {% extends 'base.html'%}
 {% import 'bootstrap/wtf.html' as wtf%}
-{% block content%}
-<div class="container">
-  <div class="row">
 
-    <div class="col-md-2"> </div>
+{% block content %}
 
-    <div class="col-md-8">
-      <!-- Flash message -->
-      {% for message in get_flashed_messages() %}
-      <div class="alert alert-danger">
-        <button type="button" class="close" data-dismiss="alert">&times;</button> {{ message }}
-      </div>
+<head>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Rokkitt" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Material Design Bootstrap -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.7.5/css/mdb.min.css" rel="stylesheet">
+    <title> {{ title }} </title>
+</head>
 
-      {% endfor %}
-      <!-- Login form  -->
 
-      {{ wtf.quick_form(login_form) }}
+<div class="card" style="padding: 30px; margin: 50px; height: 60vh">
+    <!--Header-->
+    <div class="header pt-3 peach-gradient">
 
-      <p> Don't have an account? <a href="{{url_for('auth.register')}}">Sign up here</a></p>
+        <div class="row d-flex justify-content-center">
+            <h3 class="white-text mb-3 pt-3 font-weight-bold">Log in</h3>
+        </div>
+
+        <div class="row mt-2 mb-3 d-flex justify-content-center">
+            <!--Facebook-->
+            <a class="fa-lg p-2 m-2 fb-ic"><i class="fab fa-facebook-f white-text fa-lg"> </i></a>
+            <!--Twitter-->
+            <a class="fa-lg p-2 m-2 tw-ic"><i class="fab fa-twitter white-text fa-lg"> </i></a>
+            <!--Google +-->
+            <a class="fa-lg p-2 m-2 gplus-ic"><i class="fab fa-google-plus-g white-text fa-lg"> </i></a>
+        </div>
 
     </div>
+    <!--Header-->
+    <div class="card-body">
+        <!-- flash message -->
+    {% for message in get_flashed_messages() %}
+    <div>
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+    </div>
+    {% endfor %}
+    <div class="lg-form form-lg">
+        <i class="fa fa-lock prefix"></i>
+        <!-- login frorm -->
+        {{wtf.quick_form(login_form)}}
+    </div>
+   
+    <p>If new <a href="{{url_for('auth.register')}}">Create account</a> </p>
+</div> 
+    </div>
+{% endblock %}
 
-    <div class="col-md-2"> </div>
-
-  </div>
-</div>
-
-
-{%endblock%}

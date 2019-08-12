@@ -1,87 +1,112 @@
 from flask import render_template,request,redirect,url_for,abort
-from . import main
-from .forms import PostForm,SubscriberForm,CommentForm
-from ..import db,photos
-from ..models import User,Post,Role,Subscriber,Comment
 from flask_login import login_required,current_user
-import markdown2
-from ..email import mail_message
-from ..request import get_quote
+from . import main
+from .forms import UpdateProfile,PostAblog,PostAComment
+from .. import db
+from ..models import User,Blog,Comment
+from ..requests import get_quotes
 
-@main.route("/",methods=['GET','POST'])
+# Views
+@main.route('/')
 def index():
-    """
+
+    '''
     View root page function that returns the index page and its data
-    """
-    posts = Post.query.all()
-    form = SubscriberForm()
-    if form.validate_on_submit():
-        email = form.email.data
+    '''
 
-        new_subscriber=Subscriber(email=email)
-        new_subscriber.save_subscriber()
+    title = 'Home'
+    quotes = get_quotes()
 
-        mail_message("Subscription Received","email/welcome_subscriber",new_subscriber.email,subscriber=new_subscriber)
+    return render_template('index.html', title = title, quotes=quotes )
 
-    title = "Welcome to My Blog"
-    
-    name  = "Quote"
-    quote = get_quote()
-    
-    return render_template('index.html',title=title,posts=posts,subscriber_form=form,name=name,quote=quote)
-
-@main.route('/user/<uname>')
+@main.route('/account/<uname>',methods=['GET','POST'])
 @login_required
-def profile(uname):
+def account(uname):
+
+    '''
+    View root page function that returns the profile page and its data
+    '''
+
+    title = 'Profile'
     user = User.query.filter_by(username = uname).first()
 
     if user is None:
-        abort(404)
+        abort(fourOwffour)
+    blogs = Blog.query.order_by(Blog.posted.desc()).all()
+    
+    return render_template('account.html', user = user, blogs=blogs)
 
-    return render_template("profile/profile.html", user = user)
-
-@main.route("/new_post",methods=['GET','POST'])
+@main.route('/update/<uname>',methods=['GET','POST'])
 @login_required
-def new_post():
-    form = PostForm()
-    if form.validate_on_submit():
-        title = form.title.data
-        post = form.post.data
-        category = form.category.data
-        new_post=Post(title=title,post=post,category=category)
+def update(uname):
 
-        new_post.save_post()
+    '''
+    View root page function that returns the update page and its data
+    '''
+    blog_form = PostAblog()
+    if update_form.validate_on_submit():
+        title = update_form.title.data
+        blog = update_form.text.data
+    
+    user = User.query.filter_by(username = uname).first()
 
-        subscribers=Subscriber.query.all()
+    if user is None:
+        abort(fourOwffour)
+    blogs = Blog.query.order_by(Blog.posted.desc()).all()
+    
+    return render_template('update.html', user = user, blogs=blogs)
 
-        for subscriber in subscribers:
-            mail_message("New Blog Post","email/new_post",subscriber.email,post=new_post)
 
-        return redirect(url_for('main.index'))
+@main.route('/blogs',methods=['GET','POST'])
+def blog():
+        
+        form = PostAblog()
+        if form.validate_on_submit():
+            new_blog = Blog(title=form.title.data, content=form.content.data, user_id=current_user.id)
+            new_blog.save_blog()
+            return redirect(url_for('main.blog'))
+        blogs= Blog.get_blogs()
+        users = User.query.all()
 
-    title="Make a post"
-    return render_template('new_post.html',title=title,post_form=form)
+        return render_template('blogs.html',blogs=blogs,users=users, form=form )
 
-@main.route("/post/<int:id>",methods=['GET','POST'])
-def post(id):
-    post=Post.query.get_or_404(id)
-    comment = Comment.query.all()
-    form=CommentForm()
+@main.route('/comment')
+def comment():
 
-    if request.args.get("like"):
-        post.like = post.like+1
+    '''
+    View root page function that returns the comments page and its data
+    '''
 
-        db.session.add(post)
+    title = 'Comment'
+    
+
+    return render_template('comment.html', title = title )
+
+@main.route('/user/<uname>/update/pic',methods= ['POST'])
+@login_required
+def update_pic(uname):
+    user = User.query.filter_by(username = uname).first()
+    if 'photo' in request.files:
+        filename = photos.save(request.files['photo'])
+        path = f'photos/{filename}'
+        user.profile_pic_path = path
         db.session.commit()
+    return redirect(url_for('update.html',uname=uname))
 
-        return redirect("/post/{post_id}".format(post_id=post.id))
+@main.route('/blog/new', methods=['GET', 'POST'])
+@login_required
+def new_blog():
+    blog_form = PostAblog()
+    if blog_form.validate_on_submit():
+        title = blog_form.title.data
+        blog = blog_form.text.data
 
-    if form.validate_on_submit():
-        comment=form.comment.data
-        new_comment = Comment(id=id,comment=comment,user_id=current_user.id,post_id=post.id)
+        # Updated blog instance
+        new_blog = Blog(blog_title=title, blog_content=blog, user=current_user)
 
-        new_comment.save_comment()
+        # Save blog method
+        new_blog.save_blog()
+        return redirect(url_for('.index'))
 
-        return redirect("/post/{post_id}".format(post_id=post.id))
-
-    return render_template('post.html',post=post,comments=comment,comment_form=form)
+    title = 'New blog'
+    return render_template('blogs.html', title=title)
